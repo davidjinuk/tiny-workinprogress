@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+</head>
+<body>
+  <header>
+    <% include ./partials/_header %>
+  </header>
+
+  <ul>
+    <!-- Add your EJS code here -->
+    <!--used urls .. changed to urlsDatabase -->
+    <% for (let short in urls) { %>
+      <li><%= short %> - <%= urls[short] %>
+        <a href="/urls/<%= short %>">Edit</a>
+
+        <form method="POST" action="/urls/<%= short %>/delete">
+            <button>Delete</button>
+        </form>
+      </li>
+    <% } %>
+
+      <li><a href=''>Shorten Your URL</a></li>
+  </ul>
+</body>
+</html>
