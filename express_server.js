@@ -1,40 +1,53 @@
-const express = require("express");
+const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  'b2xVn2': 'http://www.lighthouselabs.ca',
+  '9sm5xK': 'http://www.google.com'
 };
 
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+app.use(function(req, res, next){
+  res.locals.username = req.cookies.username;
+  res.locals.urls = urlDatabase;
+  next();
+});
 
 // Root route
 // HTTP request being handled
 app.get('/', (req, res) => {
-  res.end("Hello!");
+  res.render('urls_index');
 });
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get('/hello', (req, res) => {
-  res.end('<html><body>Hello <b>World</b></body></html>\n');
-});
+// app.get('/hello', (req, res) => {
+//   res.end('<html><body>Hello <b>World</b></body></html>\n');
+// });
 
 app.get('/urls', (req, res) => {
   let templateVars = {
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies['username']
   };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  res.render("urls_new");
+  let templateVars = {
+    username: req.cookies['username']
+  }
+  res.render("urls_new", templateVars);
 });
 
 // Should be /urls NOT /urls/create
@@ -70,6 +83,16 @@ app.post('/urls/:id', (req, res) => {
   let shortURL = req.params.id;
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls');
+});
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/');
+});
+
+app.post('/logout', (req, res) => {
+  res.cookie('username', '');
+  res.redirect('/');
 });
 
 app.listen(PORT, () => {
