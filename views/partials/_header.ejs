@@ -1,14 +1,35 @@
-
-<% if (username) { %>
-  Welcome <%= username %>
-  <form action="/logout" method="POST">
+<!--
+<% if (user_id) { %>
+  Welcome <%= user_id %>
+  <p>
+    <form action="/logout" method="POST">
       <button>Logout</button>
-  </form
+    </form
+  </p>
 <% } else { %>
-  <p>Log in!</p>
-  <form action="/login" method="POST">
-      <input id="username" type="text" name="username">
-      <input type="submit" value="Submit">
-  </form>
+  <p>Log in!
+    <form action="/login" method="POST">
+        <input id="username" type="text" name="username" placeholder="Name">
+        <input type="submit" value="Submit">
+    </form>
+  </p>
+<% } %> -->
+
+<% if (user_id) { %>
+  Your email address: <%= users[user_id].email %>
+  <p>
+    <form action="/logout" method="POST">
+      <button>Logout</button>
+    </form>
+  </p>
+<% } else { %>
+  <p>
+    <a href="/login">Log in</a>
+  </p>
 <% } %>
 
+<form action="/register" method="POST">
+  <input name="email" type="email" placeholder="Email">
+  <input name="password" type="password" placeholder="Password">
+  <input type="submit" value="Register">
+</form>

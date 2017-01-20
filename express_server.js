@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
+let urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
@@ -18,8 +18,12 @@ app.use(cookieParser());
 app.use(function(req, res, next){
   res.locals.username = req.cookies.username;
   res.locals.urls = urlDatabase;
+  res.locals.user_id = req.cookies.user_id;
+  res.locals.users = users;
   next();
 });
+
+let users = {};
 
 // Root route
 // HTTP request being handled
@@ -86,13 +90,54 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/');
+  let email = req.body.email;
+  let password = req.body.password;
+  for (let user in users) {
+    if ((email === users[user].email) && (password === users[user].password)) {
+      res.cookie('user_id', users[user].id)
+      return res.redirect('/');
+    }
+  }
+  res.sendStatus(403);
+});
+
+app.get('/login', (req, res) => {
+  res.render('urls_login');
 });
 
 app.post('/logout', (req, res) => {
-  res.cookie('username', '');
+  res.cookie('user_id', '');
   res.redirect('/');
+});
+
+app.post('/register', (req, res) => {
+  let id = randomString();
+  let email = req.body.email;
+  let password = req.body.password;
+  var badUser = false;
+
+  // put it in global!
+  for (let user in users) {
+    if (email === users[user].email) {
+      badUser = true;
+      res.sendStatus(400);
+    }
+    if (email === '' || password === '') {
+      badUser = true;
+      res.sendStatus(400);
+    }
+  }
+
+  if (!badUser) {
+    users[id] = {
+      id: id,
+      email: email,
+      password: password
+    };
+    res.cookie('user_id', id);
+    res.redirect('/');
+  }
+
 });
 
 app.listen(PORT, () => {
